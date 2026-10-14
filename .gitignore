@@ -1,0 +1,12 @@
+target/
+out/
+src_backup/
+*.class
+classpath.txt
+.vscode/
+.idea/
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
