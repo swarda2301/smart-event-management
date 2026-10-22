@@ -1,20 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-         https://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>eventmanagement</groupId>
     <artifactId>smart-event-management</artifactId>
     <version>1.0</version>
-
     <name>Smart Event Management System</name>
-    <description>
-        Java OOP project for event management, Excel imports,
-        attendance tracking and email invitations.
-    </description>
 
     <properties>
         <maven.compiler.release>21</maven.compiler.release>
@@ -22,34 +16,40 @@
     </properties>
 
     <dependencies>
-
-        <!-- Excel file reading and importing -->
+        <!-- Excel .xlsx support -->
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
-            <version>5.5.1</version>
+            <version>5.4.1</version>
         </dependency>
 
-        <!-- Email sending using Jakarta Mail -->
+        <!-- Email support -->
         <dependency>
-            <groupId>org.eclipse.angus</groupId>
-            <artifactId>angus-mail</artifactId>
-            <version>2.0.3</version>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>jakarta.mail</artifactId>
+            <version>2.0.1</version>
         </dependency>
-
     </dependencies>
 
     <build>
-        <sourceDirectory>src</sourceDirectory>
-
         <plugins>
-            <!-- Compile using Java 21 -->
+            <!-- Java compiler -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.14.1</version>
                 <configuration>
                     <release>21</release>
+                </configuration>
+            </plugin>
+
+            <!-- Run the application -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.5.0</version>
+                <configuration>
+                    <mainClass>eventmanagement.Main</mainClass>
                 </configuration>
             </plugin>
         </plugins>

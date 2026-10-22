@@ -16,28 +16,28 @@ public class Main {
         System.out.println("\n--- CREATE NEW EVENT ---");
 
         System.out.print("Enter Event ID: ");
-        String id = sc.nextLine();
+        String id = sc.nextLine().trim();
 
         System.out.print("Enter Event Name: ");
-        String name = sc.nextLine();
+        String name = sc.nextLine().trim();
 
         System.out.print("Enter Event Type: ");
-        String type = sc.nextLine();
+        String type = sc.nextLine().trim();
 
         System.out.print("Enter Date: ");
-        String date = sc.nextLine();
+        String date = sc.nextLine().trim();
 
         System.out.print("Enter Time: ");
-        String time = sc.nextLine();
+        String time = sc.nextLine().trim();
 
         System.out.print("Enter Venue: ");
-        String venue = sc.nextLine();
+        String venue = sc.nextLine().trim();
 
         System.out.print("Enter Organizer Name: ");
-        String organizer = sc.nextLine();
+        String organizer = sc.nextLine().trim();
 
         System.out.print("Enter Event Description: ");
-        String description = sc.nextLine();
+        String description = sc.nextLine().trim();
 
         Event event = new Event(
                 id, name, type, date, time,
@@ -61,22 +61,25 @@ public class Main {
             System.out.println("\nGate " + i);
 
             System.out.print("Enter gate ID: ");
-            String gateId = sc.nextLine();
+            String gateId = sc.nextLine().trim();
 
             System.out.print("Enter gate name: ");
-            String gateName = sc.nextLine();
+            String gateName = sc.nextLine().trim();
 
             System.out.print("Enter gate capacity: ");
             int gateCapacity = readPositiveInt(sc);
 
             event.addGate(
-                    new EntryGate(gateId, gateName, gateCapacity)
+                    new EntryGate(
+                            gateId, gateName, gateCapacity
+                    )
             );
         }
 
         InvitationService service = new InvitationService();
         EventManager manager = new EventManager(event);
         ExcelImportService excelService = new ExcelImportService();
+        WinnerService winnerService = new WinnerService();
 
         boolean running = true;
 
@@ -108,8 +111,10 @@ public class Main {
             System.out.println("23. Send Judge Invitations");
             System.out.println("24. Send All Invitations");
             System.out.println("25. Exit");
+            System.out.println("26. Manage Winners");
+            System.out.println("27. View Winners");
 
-            System.out.print("Enter your choice: ");
+            System.out.print("\nEnter your choice: ");
             String choice = sc.nextLine().trim();
 
             switch (choice) {
@@ -190,24 +195,28 @@ public class Main {
                     break;
 
                 case "19": {
-
                     System.out.println("\n--- EXCEL IMPORT ---");
+
                     System.out.print(
                             "Enter the full path of your .xlsx file: "
                     );
 
                     String filePath = sc.nextLine().trim();
 
-                    if (filePath.startsWith("\"")
-                            && filePath.endsWith("\"")
-                            && filePath.length() >= 2) {
+                    // Remove surrounding quotes from copied paths.
+                    if (filePath.length() >= 2
+                            && filePath.startsWith("\"")
+                            && filePath.endsWith("\"")) {
                         filePath = filePath.substring(
                                 1, filePath.length() - 1
                         );
                     }
 
+                    // Import people into the invitation list.
                     excelService.importPeople(filePath, service);
 
+                    // Preserve the existing automatic participant
+                    // registration behaviour.
                     int registered = 0;
 
                     for (Person person : service.getRecipients()) {
@@ -238,7 +247,7 @@ public class Main {
                     );
 
                     System.out.println(
-                            "Choose option 20 to view the attendance report."
+                            "Choose option 20 to view attendance."
                     );
 
                     break;
@@ -273,14 +282,10 @@ public class Main {
                             break;
                     }
 
-                    System.out.println(
-                            "\n--- SEND EMAIL INVITATIONS ---"
-                    );
-
                     try {
                         EmailService emailService = new EmailService();
 
-                        if ("ALL".equals(role)) {
+                        if (role.equals("ALL")) {
                             System.out.println(
                                     "Sending invitations to all recipients..."
                             );
@@ -316,9 +321,19 @@ public class Main {
                     );
                     break;
 
+                case "26":
+                    winnerService.manageWinners(
+                            sc, service, event
+                    );
+                    break;
+
+                case "27":
+                    winnerService.viewWinners();
+                    break;
+
                 default:
                     System.out.println(
-                            "Invalid choice. Enter a number from 1 to 25."
+                            "Invalid choice. Enter a number from 1 to 27."
                     );
             }
         }
@@ -339,7 +354,7 @@ public class Main {
                 }
 
             } catch (NumberFormatException ignored) {
-                // Ask again if the input is invalid.
+                // Ask again for invalid input.
             }
 
             System.out.print(
@@ -384,6 +399,7 @@ public class Main {
         Attendee attendee;
 
         switch (type) {
+
             case "VIP":
                 attendee = new VIPAttendee(
                         userId, fullName, contact
@@ -440,16 +456,13 @@ public class Main {
         Person person;
 
         switch (role) {
+
             case "Judge":
-                person = new Judge(
-                        personId, fullName, email
-                );
+                person = new Judge(personId, fullName, email);
                 break;
 
             case "Teacher":
-                person = new Teacher(
-                        personId, fullName, email
-                );
+                person = new Teacher(personId, fullName, email);
                 break;
 
             default:
@@ -479,9 +492,11 @@ public class Main {
         System.out.println("2. Teachers");
         System.out.println("3. Judges");
         System.out.println("4. Return");
+
         System.out.print("Choose a list: ");
 
         switch (sc.nextLine().trim()) {
+
             case "1":
                 service.displayPeopleByRole("Participant");
                 break;
@@ -503,17 +518,22 @@ public class Main {
     }
 
     private static void viewSeparateInvitations(
-            Scanner sc, InvitationService service, Event event) {
+            Scanner sc,
+            InvitationService service,
+            Event event) {
 
         System.out.println(
                 "\n1. Student / Participant Invitations"
         );
+
         System.out.println("2. Teacher Invitations");
         System.out.println("3. Judge Invitations");
         System.out.println("4. Return");
+
         System.out.print("Choose a category: ");
 
         switch (sc.nextLine().trim()) {
+
             case "1":
                 service.displayInvitationsByRole(
                         event, "Participant"
@@ -594,10 +614,15 @@ public class Main {
                         + event.getAttendees().size()
         );
 
-        System.out.println("Currently inside venue: " + present);
-        System.out.println("Not currently inside: " + notInside);
-        System.out.println("==================================");
+        System.out.println(
+                "Currently inside venue: " + present
+        );
 
+        System.out.println(
+                "Not currently inside: " + notInside
+        );
+
+        System.out.println("==================================");
         System.out.println(
                 "PRESENT means currently inside the venue."
         );
